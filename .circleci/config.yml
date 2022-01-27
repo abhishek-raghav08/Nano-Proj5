@@ -1,0 +1,203 @@
+version: 2.1
+
+orbs:
+  aws-eks: circleci/aws-eks@0.2.3
+  aws-ecr: circleci/aws-ecr@3.1.0
+  kubernetes: circleci/kubernetes@0.4.0
+
+jobs:
+    run-lint:
+      docker:
+        - image: circleci/node:13.8.0
+      steps:
+        - checkout
+        - run:
+            name: install dependencies
+            command: |            
+              make install
+        - run:
+            name: run lint
+            command: |
+              make lint
+
+    build-push-image:
+      docker:
+        - image: circleci/node:13.8.0
+      steps:
+        - checkout
+
+        - setup_remote_docker:
+            version: 19.03.13
+
+        - run:
+            name: Building Image
+            command: |
+              export TAG=v${CIRCLE_BUILD_NUM}
+              export IMAGE_NAME=uda-capstone
+              docker build -t abhishekraghav08/$IMAGE_NAME:$TAG .
+
+        - run:
+            name: Push Docker Image to Docker Hub
+            command: |
+              export TAG=v${CIRCLE_BUILD_NUM}
+              export IMAGE_NAME=uda-capstone
+
+              docker build -t abhishekraghav08/$IMAGE_NAME:$TAG .
+              docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD 
+              docker push abhishekraghav08/$IMAGE_NAME:$TAG
+
+    create-cluster:
+      executor: aws-eks/python3
+      parameters:
+        cluster-name:
+          description: |
+            Name of the EKS cluster
+          type: string
+        aws-region:
+          description: |
+            AWS region
+          type: string
+          default: "us-east-1"
+      steps:
+        - checkout    
+        - aws-eks/create-cluster:
+            cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
+            aws-region: $AWS_DEFAULT_REGION
+
+    deploy-application:
+      executor: aws-eks/python3
+      parameters:
+        cluster-name:
+          description: |
+            Name of the EKS cluster
+          type: string
+        docker-image-name:
+          description: |
+            Name of the docker image to be deployed
+          type: string
+        version-info:
+          description: |
+            App version information
+          type: string
+        aws-region:
+          description: |
+            AWS region
+          type: string
+          default: "us-east-1"
+      steps:
+        - checkout
+        - aws-eks/update-kubeconfig-with-authenticator:
+            cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
+            install-kubectl: true
+            aws-region: $AWS_DEFAULT_REGION
+        - kubernetes/create-or-update-resource:
+            resource-file-path: "deployment.yml"
+            get-rollout-status: true
+            resource-name: deployment/uda-capstone
+        - kubernetes/create-or-update-resource:
+            resource-file-path: "deployment.yml"
+
+    test-application:
+        executor: aws-eks/python3
+        parameters:
+          cluster-name:
+            description: |
+              Name of the EKS cluster
+            type: string
+          aws-region:
+            description: |
+              AWS region
+            type: string
+            default: ""
+          expected-version-info:
+            description: |
+              Expected app version (this is used for testing that the
+              correct version has been deployed)
+            type: string
+        steps:
+          - aws-eks/update-kubeconfig-with-authenticator:
+              cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
+              install-kubectl: true
+              aws-region: $AWS_DEFAULT_REGION
+          - run:
+              name: Wait for service to be ready
+              command: |
+                kubectl get pods
+                kubectl get services
+
+    undeploy-application:
+      executor: aws-eks/python3
+      parameters:
+        cluster-name:
+          description: |
+            Name of the EKS cluster
+          type: string
+        aws-region:
+          description: |
+            AWS region
+          type: string
+          default: ""
+      steps:
+        - aws-eks/update-kubeconfig-with-authenticator:
+            cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
+            install-kubectl: true
+            aws-region: $AWS_DEFAULT_REGION
+        - kubernetes/delete-resource:
+            resource-types: "deployment,service"
+            label-selector: "app=uda-capstone"
+            wait: true
+        - run:
+            name: Check on pod status
+            command: |
+              kubectl get pods
+    delete-cluster:
+      executor: aws-eks/python3
+      parameters:
+        cluster-name:
+          description: |
+            Name of the EKS cluster
+          type: string
+        aws-region:
+          description: |
+            AWS region
+          type: string
+          default: "us-east-1"
+      steps:
+        - checkout    
+        - aws-eks/delete-cluster:
+            cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
+            aws-region: $AWS_DEFAULT_REGION
+            wait: true
+
+
+workflows:
+  default:
+    jobs:
+      - run-lint
+      - build-push-image
+      - aws-ecr/build_and_push_image:
+          name: build-and-push-image-ecr
+          account-url: AWS_ECR_URL
+          region: AWS_DEFAULT_REGION
+          repo: udacity_capstone_project
+          dockerfile: ~/project/Dockerfile
+          path: ~/project/
+          tag: ${CIRCLE_SHA1}
+      - create-cluster:
+          requires:
+            - build-and-push-image-ecr
+      - deploy-application:
+          docker-image-name: "${AWS_ECR_URL}/udacity_capstone_project:${CIRCLE_SHA1}"
+          version-info: "${CIRCLE_SHA1}"
+          requires:
+            - create-cluster
+      - test-application:
+          expected-version-info: "${CIRCLE_SHA1}"
+          requires:
+            - deploy-application
+      - undeploy-application:
+          requires:
+            - test-application
+      - delete-cluster:
+          requires:
+            - undeploy-application

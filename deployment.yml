@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uda-capstone
+  labels:
+    app: uda-capstone
+spec:
+  selector:
+    matchLabels:
+      app: uda-capstone
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: uda-capstone
+    spec:
+      containers:
+      - name: app
+        image: abhishekraghav08/uda_capstone_project:latest
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 8080
