@@ -5,18 +5,24 @@ metadata:
   labels:
     app: uda-capstone
 spec:
+  progressDeadlineSeconds: 3600
   selector:
     matchLabels:
       app: uda-capstone
-  replicas: 3
+  replicas: 1
+  strategy:
+    rollingUpdate:
+      #maxSurge: 25%
+      maxUnavailable: 1
+    type: RollingUpdate
   template:
     metadata:
       labels:
         app: uda-capstone
     spec:
       containers:
-      - name: app
-        image: abhishekraghav08/uda_capstone_project:latest
+      - name: uda-capstone
+        image: abhishekraghav08/uda-capstone:latest
         resources:
           requests:
             cpu: 100m
