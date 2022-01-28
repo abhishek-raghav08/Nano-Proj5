@@ -133,8 +133,8 @@ workflows:
           account-url: AWS_ECR_URL
           region: AWS_DEFAULT_REGION
           repo: udacity_capstone_project
-          dockerfile: ~/project/Dockerfile
-          path: ~/project/
+          dockerfile: Dockerfile
+          path: ~/
           tag: ${CIRCLE_SHA1}
           aws-access-key-id: AWS_ACCESS_KEY_ID
           aws-secret-access-key: AWS_SECRET_ACCESS_KEY
