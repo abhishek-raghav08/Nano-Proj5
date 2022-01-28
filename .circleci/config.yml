@@ -49,15 +49,6 @@ jobs:
     create-capston-cluster:
       executor: aws-eks/python3
       parameters:
-        cluster-name:
-          description: |
-            Cluster for capstone Project
-          type: string
-        aws-region:
-          description: |
-            Deafult AWS region
-          type: string
-          default: "us-east-1"
       steps:
         - checkout    
         - aws-eks/create-cluster:
@@ -67,10 +58,6 @@ jobs:
     deploy-capston-app:
       executor: aws-eks/python3
       parameters:
-        cluster-name:
-          description: |
-            Cluster for capstone Project
-          type: string
         docker-image-name:
           description: |
             Docker image for Capstone Project
@@ -79,11 +66,6 @@ jobs:
           description: |
             Capstone Version information
           type: string
-        aws-region:
-          description: |
-            Deafult AWS region
-          type: string
-          default: "us-east-1"
       steps:
         - checkout
         - aws-eks/update-kubeconfig-with-authenticator:
@@ -100,15 +82,6 @@ jobs:
     test-capston-app:
         executor: aws-eks/python3
         parameters:
-          cluster-name:
-            description: |
-              Cluster for capstone Project
-            type: string
-          aws-region:
-            description: |
-              Deafult AWS region
-            type: string
-            default: ""
           expected-version-info:
             description: |
               test capston version 
@@ -128,15 +101,6 @@ jobs:
     undeploy-capston-app:
       executor: aws-eks/python3
       parameters:
-        cluster-name:
-          description: |
-            Cluster for capstone Project
-          type: string
-        aws-region:
-          description: |
-            Deafult AWS region
-          type: string
-          default: ""
       steps:
         - aws-eks/update-kubeconfig-with-authenticator:
             cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
@@ -147,22 +111,13 @@ jobs:
             label-selector: "app=uda-capstone"
             wait: true
         - run:
-            name: Check on pod status
+            name: Pod status
             command: |
               kubectl get pods
 
     delete-capston-cluster:
       executor: aws-eks/python3
       parameters:
-        cluster-name:
-          description: |
-            Cluster for capstone Project
-          type: string
-        aws-region:
-          description: |
-            Deafult AWS region
-          type: string
-          default: "us-east-1"
       steps:
         - checkout    
         - aws-eks/delete-cluster:
