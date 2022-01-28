@@ -132,6 +132,7 @@ workflows:
           name: build-and-push-image-capston
           account-url: AWS_ECR_URL
           region: AWS_DEFAULT_REGION
+          create-repo: true
           repo: udacity_capstone_project
           dockerfile: Dockerfile
           path: .
