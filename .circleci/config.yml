@@ -129,20 +129,20 @@ workflows:
           requires:
             - run-lint
       - aws-ecr/build-and-push-image:
-          name: build-and-push-image-ecr
-          account-url: AWS_ECR_URL
-          region: AWS_DEFAULT_REGION
+          name: build-and-push-image-capston
+          account-url: ${AWS_ECR_URL}
+          region: ${AWS_DEFAULT_REGION}
           repo: udacity_capstone_project
           dockerfile: Dockerfile
           path: .
           tag: ${CIRCLE_SHA1}
-          aws-access-key-id: AWS_ACCESS_KEY_ID
-          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          aws-access-key-id: ${AWS_ACCESS_KEY_ID}
+          aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
           requires:
             - run-lint
       - create-capston-cluster:
           requires:
-            - build-and-push-image-ecr
+            - build-and-push-image-capston
       - deploy-capston-app:
           docker-image-name: "${AWS_ECR_URL}/udacity_capstone_project:${CIRCLE_SHA1}"
           version-info: "${CIRCLE_SHA1}"
