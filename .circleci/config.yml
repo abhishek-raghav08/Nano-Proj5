@@ -32,14 +32,14 @@ jobs:
         - run:
             name: Building Image
             command: |
-              export TAG=v${CIRCLE_BUILD_NUM}
+              export TAG=uda-capstone
               export IMAGE_NAME=uda-capstone
               docker build -t abhishekraghav08/$IMAGE_NAME:$TAG .
 
         - run:
             name: Push Docker Image to Docker Hub
             command: |
-              export TAG=v${CIRCLE_BUILD_NUM}
+              export TAG=uda-capstone
               export IMAGE_NAME=uda-capstone
 
               docker build -t abhishekraghav08/$IMAGE_NAME:$TAG .
