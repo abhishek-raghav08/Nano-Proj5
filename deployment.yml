@@ -6,10 +6,15 @@ metadata:
     app: uda-capstone
 spec:
   progressDeadlineSeconds: 3600
+  replicas: 1
   selector:
     matchLabels:
-      app: uda-capstone
-  replicas: 3
+      app: my-capstone-deployment
+  strategy:
+    rollingUpdate:
+      #maxSurge: 25%
+    maxUnavailable: 1
+    type: RollingUpdate
   template:
     metadata:
       labels:
@@ -18,9 +23,21 @@ spec:
       containers:
       - name: uda-capstone
         image: abhishekraghav08/uda-capstone:uda-capstone
-        resources:
-          requests:
-            cpu: 100m
-            memory: 100Mi
+        imagePullPolicy: Always
         ports:
-        - containerPort: 8080
+           - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: uda-capstone
+  labels:
+    app: uda-capstone
+spec:
+  type: LoadBalancer
+  selector:
+    app: my-capstone
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
