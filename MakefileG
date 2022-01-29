@@ -12,7 +12,7 @@ install:
 lint:
 	# See local hadolint install instructions:   https://github.com/hadolint/hadolint
 	# This is linter for Dockerfiles
-	hadolint DockerfileB --ignore DL3013
+	hadolint DockerfileG --ignore DL3013
 	
 
 all: install lint 
