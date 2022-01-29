@@ -32,19 +32,19 @@ jobs:
         - run:
             name: Building Image
             command: |
-              export TAG=uda-capstone
+              export TAG=v${CIRCLE_BUILD_NUM}
               export IMAGE_NAME=uda-capstone
               docker build -t abhishekraghav08/$IMAGE_NAME:$TAG .
-              export url="http://localhost:8080"
-              echo "This is url $url"
+              docker container ls
+
         - run:
             name: Push Docker Image to Docker Hub
             command: |
-              export TAG=uda-capstone
+              export TAG=v${CIRCLE_BUILD_NUM}
               export IMAGE_NAME=uda-capstone
-
-              docker build -t abhishekraghav08/$IMAGE_NAME:$TAG .
               docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD 
+              docker build -t abhishekraghav08/$IMAGE_NAME:$TAG .
+                          docker container ls
               docker push abhishekraghav08/$IMAGE_NAME:$TAG
             
     create-capston-cluster:
@@ -69,7 +69,8 @@ jobs:
                 SUDO="sudo"
               fi
               $SUDO mv eksctl_download/eksctl /usr/local/bin/
-              rmdir eksctl_download        
+              rmdir eksctl_download     
+                 
         - aws-eks/create-cluster:
             cluster-name: udacity-capstone-project-blue
             aws-region: $AWS_DEFAULT_REGION
@@ -99,8 +100,9 @@ jobs:
             aws-region: $AWS_DEFAULT_REGION
         - kubernetes/create-or-update-resource:
             resource-file-path: deployment.yml
-            get-rollout-status: true
             resource-name: deployment/uda-capstone
+        - kubernetes/create-or-update-resource:
+            resource-file-path: deployment.yml
 
     test-capston-app:
         executor: aws-eks/python3
