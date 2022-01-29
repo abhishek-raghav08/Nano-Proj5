@@ -92,6 +92,10 @@ jobs:
           type: string
       steps:
         - checkout
+        - run
+            name: Run test
+            no_output_timeout: 30m
+            command: python -m unittest 
         - aws-eks/update-kubeconfig-with-authenticator:
             cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
             install-kubectl: true
