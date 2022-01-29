@@ -84,15 +84,6 @@ jobs:
 
     deploy-capston-app:
       executor: aws-eks/python3
-      parameters:
-        docker-image-name:
-          description: |
-            Docker image for Capstone Project
-          type: string
-        version-info:
-          description: |
-            Capstone Version information
-          type: string
       steps:
         - checkout
         - kubernetes/install
