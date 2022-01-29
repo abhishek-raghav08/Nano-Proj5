@@ -70,7 +70,7 @@ jobs:
               $SUDO mv eksctl_download/eksctl /usr/local/bin/
               rmdir eksctl_download        
         - aws-eks/create-cluster:
-            cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
+            cluster-name: udacity-capstone-project-blue
             aws-region: $AWS_DEFAULT_REGION
             skip-kubectl-install: false
             verbose: 3
@@ -93,7 +93,7 @@ jobs:
       steps:
         - checkout
         - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
+            cluster-name: udacity-capstone-project-blue
             install-kubectl: true
             aws-region: $AWS_DEFAULT_REGION
         - kubernetes/create-or-update-resource:
@@ -110,7 +110,7 @@ jobs:
 
         steps:
           - aws-eks/update-kubeconfig-with-authenticator:
-              cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
+              cluster-name: udacity-capstone-project-blue
               install-kubectl: true
               aws-region: $AWS_DEFAULT_REGION
           - run:
@@ -123,7 +123,7 @@ jobs:
       executor: aws-eks/python3
       steps:
         - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
+            cluster-name: udacity-capstone-project-blue
             install-kubectl: true
             aws-region: $AWS_DEFAULT_REGION
         - kubernetes/delete-resource:
@@ -160,7 +160,7 @@ jobs:
               rmdir eksctl_download        
     
         - aws-eks/delete-cluster:
-            cluster-name: udacity-capstone-project-${CIRCLE_WORKFLOW_ID:0:7}
+            cluster-name: udacity-capstone-project-blue
             aws-region: $AWS_DEFAULT_REGION
             wait: true
 workflows:
