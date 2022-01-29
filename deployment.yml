@@ -9,12 +9,7 @@ spec:
   selector:
     matchLabels:
       app: uda-capstone
-  replicas: 1
-  strategy:
-    rollingUpdate:
-      #maxSurge: 25%
-      maxUnavailable: 1
-    type: RollingUpdate
+  replicas: 3
   template:
     metadata:
       labels:
@@ -22,7 +17,7 @@ spec:
     spec:
       containers:
       - name: uda-capstone
-        image: abhishekraghav08/uda-capstone:latest
+        image: abhishekraghav08/uda-capstone:uda-capstone
         resources:
           requests:
             cpu: 100m
