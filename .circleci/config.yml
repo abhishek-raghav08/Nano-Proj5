@@ -77,7 +77,7 @@ jobs:
             skip-kubectl-install: false
             verbose: 3
             node-type: t2.micro
-            nodes-max: 2
+            nodes-max: 1
             ssh-access: false
             ssh-public-key: ''
 
