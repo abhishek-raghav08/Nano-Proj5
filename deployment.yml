@@ -4,6 +4,7 @@ metadata:
   name: uda-capstone
   labels:
     app: uda-capstone
+  namespace: default
 spec:
   progressDeadlineSeconds: 3600
   replicas: 1

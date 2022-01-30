@@ -72,7 +72,7 @@ jobs:
               rmdir eksctl_download     
 
         - aws-eks/create-cluster:
-            cluster-name: udacity-capstone-project
+            cluster-name: udacity-capstone-project-new
             aws-region: $AWS_DEFAULT_REGION
             skip-kubectl-install: false
             verbose: 3
@@ -87,7 +87,7 @@ jobs:
         - checkout
         - kubernetes/install
         - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: udacity-capstone-project
+            cluster-name: udacity-capstone-project-new
             install-kubectl: true
             aws-region: $AWS_DEFAULT_REGION
         - kubernetes/create-or-update-resource:
@@ -101,21 +101,27 @@ jobs:
         steps:
           - kubernetes/install
           - aws-eks/update-kubeconfig-with-authenticator:
-              cluster-name: udacity-capstone-project
+              cluster-name: udacity-capstone-project-new
               install-kubectl: true
               aws-region: $AWS_DEFAULT_REGION
           - run:
               name: Wait
               command: |
-                kubectl get pods
-                kubectl get services
-                kubectl get deployment
+                echo "My deployments"
+                kubectl get deployments -o wide
+                echo  "******************************"
+                echo "My services"
+                kubectl get services -o wide
+                echo  "******************************"
+                echo "My pods"
+                kubectl get pods -o wide
+
 
     undeploy-capston-app:
       executor: aws-eks/python3
       steps:
         - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: udacity-capstone-project
+            cluster-name: udacity-capstone-project-new
             install-kubectl: true
             aws-region: $AWS_DEFAULT_REGION
         - kubernetes/delete-resource:
@@ -152,7 +158,7 @@ jobs:
               rmdir eksctl_download        
     
         - aws-eks/delete-cluster:
-            cluster-name: udacity-capstone-project
+            cluster-name: udacity-capstone-project-new
             aws-region: $AWS_DEFAULT_REGION
             wait: true
 workflows:
@@ -184,14 +190,14 @@ workflows:
       - test-capston-app:
           requires:
             - deploy-capston-app
-      - aws-eks/update-container-image:
-          cluster-name: udacity-capstone-project
-          container-image-updates: 'uda-capstone=abhishekraghav08/uda-capstone:uda-capstone'
-          get-rollout-status: true
-          record: true
-          requires:
-             - test-capston-app
-          resource-name:  deployment/uda-capstone
+#      - aws-eks/update-container-image:
+#          cluster-name: udacity-capstone-project-new
+#          container-image-updates: 'uda-capstone=abhishekraghav08/uda-capstone:uda-capstone'
+#          get-rollout-status: true
+#          record: true
+#          requires:
+#             - test-capston-app
+#          resource-name:  deployment/uda-capstone
 #      - undeploy-capston-app:
 #          requires:
 #            - test-capston-app
