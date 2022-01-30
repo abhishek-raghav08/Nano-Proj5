@@ -41,7 +41,7 @@ metadata:
 spec:
   type: LoadBalancer
   selector:
-    app: my-capstone
+    app: uda-capstone
   ports:
     - port: 8000
       targetPort: 80

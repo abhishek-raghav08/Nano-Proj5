@@ -72,7 +72,7 @@ jobs:
               rmdir eksctl_download     
 
         - aws-eks/create-cluster:
-            cluster-name: udacity-capstone-project-new
+            cluster-name: udacity-capstone-project
             aws-region: $AWS_DEFAULT_REGION
             skip-kubectl-install: false
             verbose: 3
@@ -87,7 +87,7 @@ jobs:
         - checkout
         - kubernetes/install
         - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: udacity-capstone-project-new
+            cluster-name: udacity-capstone-project
             install-kubectl: true
             aws-region: $AWS_DEFAULT_REGION
         - kubernetes/create-or-update-resource:
@@ -101,7 +101,7 @@ jobs:
         steps:
           - kubernetes/install
           - aws-eks/update-kubeconfig-with-authenticator:
-              cluster-name: udacity-capstone-project-new
+              cluster-name: udacity-capstone-project
               install-kubectl: true
               aws-region: $AWS_DEFAULT_REGION
           - run:
@@ -114,14 +114,22 @@ jobs:
                 kubectl get services -o wide
                 echo  "******************************"
                 echo "My pods"
-                kubectl get pods -o wide
-
+                kubectl get pods -o wide --show-labels
+                echo  "******************************"
+                echo "My service - uda-capstone"
+                kubectl describe svc uda-capstone -n default
+                echo  "******************************"
+                echo "Check the service traffic policy and cluster security groups for issues with Application Load Balancers"
+                kubectl get svc  uda-capstone -n default -o=jsonpath='{.spec.externalTrafficPolicy}{"\n"}'
+                echo  "******************************"
+                echo "Verify that your service is configured for targetPort"
+                kubectl get svc  uda-capstone -n default -o=jsonpath="{.items[*]}{.metadata.name}{'\t'}{.spec.ports[].targetPort}{'\t'}{.spec.ports[].protocol}{'\n'}"
 
     undeploy-capston-app:
       executor: aws-eks/python3
       steps:
         - aws-eks/update-kubeconfig-with-authenticator:
-            cluster-name: udacity-capstone-project-new
+            cluster-name: udacity-capstone-project
             install-kubectl: true
             aws-region: $AWS_DEFAULT_REGION
         - kubernetes/delete-resource:
@@ -158,7 +166,7 @@ jobs:
               rmdir eksctl_download        
     
         - aws-eks/delete-cluster:
-            cluster-name: udacity-capstone-project-new
+            cluster-name: udacity-capstone-project
             aws-region: $AWS_DEFAULT_REGION
             wait: true
 workflows:
@@ -191,7 +199,7 @@ workflows:
           requires:
             - deploy-capston-app
 #      - aws-eks/update-container-image:
-#          cluster-name: udacity-capstone-project-new
+#          cluster-name: udacity-capstone-project
 #          container-image-updates: 'uda-capstone=abhishekraghav08/uda-capstone:uda-capstone'
 #          get-rollout-status: true
 #          record: true
