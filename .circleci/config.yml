@@ -169,6 +169,18 @@ jobs:
             cluster-name: udacity-capstone-project
             aws-region: $AWS_DEFAULT_REGION
             wait: true
+            
+    update-capston-cluster:
+      executor: aws-eks/python3
+      steps:
+        - checkout    
+        - aws-eks/update-container-image:
+            cluster-name: udacity-capstone-project
+            container-image-updates: 'uda-capstone=abhishekraghav08/uda-capstone:uda-capstone'
+            get-rollout-status: true
+            record: true
+            resource-name:  deployment/uda-capstone
+
 workflows:
   default:
     jobs:
@@ -189,23 +201,18 @@ workflows:
 #          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
 #          requires:
 #            - run-lint
-      - create-capston-cluster:
-          requires:
-            - build-push-image
-      - deploy-capston-app:
-          requires:
-            - create-capston-cluster
-      - test-capston-app:
-          requires:
-            - deploy-capston-app
-#      - aws-eks/update-container-image:
-#          cluster-name: udacity-capstone-project
-#          container-image-updates: 'uda-capstone=abhishekraghav08/uda-capstone:uda-capstone'
-#          get-rollout-status: true
-#          record: true
+#      - create-capston-cluster:
 #          requires:
-#             - test-capston-app
-#          resource-name:  deployment/uda-capstone
+#            - build-push-image
+#      - deploy-capston-app:
+#          requires:
+#            - create-capston-cluster
+#      - test-capston-app:
+#          requires:
+#            - deploy-capston-app
+      - update-capston-cluster:
+          requires:
+             - build-push-image
 #      - undeploy-capston-app:
 #          requires:
 #            - test-capston-app
