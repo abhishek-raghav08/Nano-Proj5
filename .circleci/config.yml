@@ -190,15 +190,15 @@ workflows:
 #          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
 #          requires:
 #            - run-lint
-#      - create-capston-cluster:
-#          requires:
-#            - build-push-image
-#      - deploy-capston-app:
-#          requires:
-#            - create-capston-cluster
-#      - test-capston-app:
-#          requires:
-#            - deploy-capston-app
+      - create-capston-cluster:
+          requires:
+            - build-push-image
+      - deploy-capston-app:
+          requires:
+            - create-capston-cluster
+      - test-capston-app:
+          requires:
+            - deploy-capston-app
 
       - aws-eks/update-container-image:
           cluster-name: udacity-capstone-project
@@ -207,7 +207,7 @@ workflows:
           record: true
           resource-name:  deployment/uda-capstone
           requires:
-             - build-push-image
+             - test-capston-app
 #      - undeploy-capston-app:
 #          requires:
 #            - test-capston-app
