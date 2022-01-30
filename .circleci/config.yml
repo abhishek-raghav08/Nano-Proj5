@@ -169,11 +169,12 @@ jobs:
             cluster-name: udacity-capstone-project
             aws-region: $AWS_DEFAULT_REGION
             wait: true
-            
+
     update-capston-cluster:
       executor: aws-eks/python3
       steps:
         - checkout    
+        - kubernetes/install
         - aws-eks/update-container-image:
             cluster-name: udacity-capstone-project
             container-image-updates: 'uda-capstone=abhishekraghav08/uda-capstone:uda-capstone'
